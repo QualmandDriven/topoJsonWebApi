@@ -45,9 +45,18 @@ func GetCountries(w http.ResponseWriter, r *http.Request) {
 
 func GetCities(w http.ResponseWriter, r *http.Request) {
 
-	cities := Cities{
-		City{Name: "München"},
-		City{Name: "Berlin"},
+	database := GetSqLite3Connection()
+	defer database.Close()
+
+	rows, _ := database.Query("SELECT id, name FROM cities WHERE name='Munich'")
+
+	cities := Cities{}
+
+	var id int
+	var name string
+	for rows.Next() {
+		rows.Scan(&id, &name)
+		cities = append(cities, City{Id: id, Name: name})
 	}
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
